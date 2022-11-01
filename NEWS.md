@@ -1,7 +1,40 @@
+# LBSPR 0.1.8
+
+## Bug Fixes
+- fix plotting for the minimum legal length in LBSPRsim
+
+# LBSPR 0.1.7
+
+## Minor Changes
+- LBSPR Shiny App: Made colors the same on both maturity plots
+- fix minor issue with table showing metadata for loaded dataset
+- fix minor UI error in Examine Results tab before data is loaded and model has been fit
+
+# LBSPR 0.1.6 
+
+## Bug Fixes
+- fixed minor bugs in Shiny app
+- fix issue with `plotSize` introduced with latest version of `ggplot2`
+- fix typo in vignette causing a warning on CRAN
+
+# LBSPR 0.1.5
+Minor patch to comply with new R standard of `class(matrix(1:4,2,2))` = `matrix` and `array`
+
+# LBSPR 0.1.4
+
+## Minor Changes
+- Reduce font size for warnings of high F/M etc in `plotSize`, add
+argument to control font size, and set `inc.text=FALSE` as default.
+
 # LBSPR 0.1.3 
 ## Minor Changes
 - fix bug in Shiny app reading in data
 - modify SPR circle plot used in the Shiny app.
+
+## Bug Fixes
+
+- fix issue in cpp code that was being flagged by CRAN checks
+- fix missing variable M-at-length in LBSPRfit function (thanks to Yves Reecht for picking this up)
 
 # LBSPR 0.1.2
 ## Minor Changes

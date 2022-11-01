@@ -1,4 +1,4 @@
-libs <- c("shiny", "shinyBS", "Hmisc", "xtable", 'colourpicker')
+libs <- c("shiny", "shinyBS", "Hmisc", "xtable", 'colourpicker', "DT")
 
 chk <- !libs %in% installed.packages()
 inst <- lapply(libs[chk], install.packages)
@@ -8,6 +8,7 @@ library(shinyBS)
 library(LBSPR)
 library(Hmisc)
 library(xtable)
+library(DT)
 
 shinyServer(function(input, output, clientData, session) {
 
@@ -196,7 +197,7 @@ shinyServer(function(input, output, clientData, session) {
 	}
 	templen <- NULL
 	if (chkPars()) templen <- getLB_lens()
-	if (class(templen) != "NULL") {
+	if (!inherits(templen,"NULL")) {
 	if (!is.na(Linf) & Linf > max(templen@LMids)) {
       createAlert(session,  "linfalert2", "linf2", title = "Error",
         content = HTML(paste0(tags$i("L"), tags$sub(HTML("&infin;")), "(", Linf, ") must be lower than the largest length bin (", max(templen@LMids), ")")),
@@ -213,16 +214,28 @@ shinyServer(function(input, output, clientData, session) {
   ### Check that data is ok ###
   #############################
 
+#   ExampleDataFile <- reactive({
+#     switch(input$exampData,
+# 	  rawSingHead = "../../LRaw_SingYrHead.csv",
+# 	  rawSing = "../../LRaw_SingYr.csv",
+# 	  rawMultiHead = "../../LRaw_MultiYrHead.csv",
+# 	  rawMulti = "../../LRaw_MultiYr.csv",
+# 	  freqSingHead = "../../LFreq_SingYrHead.csv",
+# 	  freqSing = "../../LFreq_SingYr.csv",
+# 	  freqMultiHead = "../../LFreq_MultiYrHead.csv",
+# 	  freqMulti = "../../LFreq_MultiYr.csv")
+#   })
+
   ExampleDataFile <- reactive({
     switch(input$exampData,
-	  rawSingHead = "../../LRaw_SingYrHead.csv",
-	  rawSing = "../../LRaw_SingYr.csv",
-	  rawMultiHead = "../../LRaw_MultiYrHead.csv",
-	  rawMulti = "../../LRaw_MultiYr.csv",
-	  freqSingHead = "../../LFreq_SingYrHead.csv",
-	  freqSing = "../../LFreq_SingYr.csv",
-	  freqMultiHead = "../../LFreq_MultiYrHead.csv",
-	  freqMulti = "../../LFreq_MultiYr.csv")
+           rawSingHead = "LRaw_SingYrHead.csv",
+           rawSing = "LRaw_SingYr.csv",
+           rawMultiHead = "LRaw_MultiYrHead.csv",
+           rawMulti = "LRaw_MultiYr.csv",
+           freqSingHead = "LFreq_SingYrHead.csv",
+           freqSing = "LFreq_SingYr.csv",
+           freqMultiHead = "LFreq_MultiYrHead.csv",
+           freqMulti = "LFreq_MultiYr.csv")
   })
 
   output$downloadExample <- renderUI({
@@ -256,14 +269,14 @@ shinyServer(function(input, output, clientData, session) {
 	  if (is.null(file1)) return(NULL)
 	  dat <- read.csv(file1$datapath, header = input$header,
                sep = input$sep, stringsAsFactors=FALSE, check.names=FALSE)
-	  if (class(dat) == "data.frame" | class(dat) == "matrix") {
+	  if (inherits(dat, "data.frame") | inherits(dat, "matrix")) {
 	    if (ncol(dat) > 1) {
 	      chkNAs <- apply(dat, 2, is.na) # check NAs
 	      dat <- dat[!apply(chkNAs, 1, prod),, drop=FALSE]
 	      dat <- dat[,!apply(chkNAs, 2, prod), drop=FALSE]
 	    }
 	  }
-	  if (class(dat) == "numeric" | class(dat) == "integer") {
+	  if (inherits(dat, "numeric") | inherits(dat,"integer")) {
 	    dat <- dat[!is.na(dat)]
 	  }
 	  dat
@@ -368,7 +381,7 @@ shinyServer(function(input, output, clientData, session) {
 	FALSE
   })
 
-  output$FileTable <- renderDataTable({
+  output$FileTable <- DT::renderDataTable({
 	if(!chkFileUp()) return(NULL)
     if(values$useExamp) {
 	  DF <- data.frame(Filename=ExampleDataFile(),
@@ -383,11 +396,7 @@ shinyServer(function(input, output, clientData, session) {
     }
     return(DF)
   }, options=list(pageLength=-1, searching = FALSE, paging = FALSE,
-     ordering=FALSE, info=FALSE, rowCallback = I(
-    'function(row, data) {
-        $("td", row).css("text-align", "center");
-      }'
-  )))
+     ordering=FALSE, info=FALSE))
 
   output$metadata <- renderUI({
     if(values$useExamp) return()
@@ -396,7 +405,7 @@ shinyServer(function(input, output, clientData, session) {
 	p("Does everything look right?"),
 	h4("File Metadata")))
   })
-  output$topdata <- renderDataTable({
+  output$topdata <- DT::renderDataTable({
     # Print out first 6 observations
     if(!chkFileUp()) return(NULL)
 	dat <- data()
@@ -716,13 +725,14 @@ shinyServer(function(input, output, clientData, session) {
   ### Results Tab ###
   output$ResultsText <- renderUI({
     if (values$DoneAssess == FALSE) {
-	  h4(HTML("Model hasn't been fitted"), style = "color:red")
-	} else {
-	  # fluidRow(
-	    # h3("Heading"),
-	    # p("Use the controls on the left to select ")
-	  # , style="padding: 0px 0px 0px 15px;")
-	}
+      # print(values$DoneAssess)
+      h4(HTML("Model hasn't been fitted"), style = "color:red")
+    } else {
+      # fluidRow(
+      # h3("Heading"),
+      # p("Use the controls on the left to select ")
+      # , style="padding: 0px 0px 0px 15px;")
+    }
   })
 
   ### Table of Estimates ###
@@ -790,18 +800,23 @@ shinyServer(function(input, output, clientData, session) {
 	DF
   })
 
-  output$Estimates <- renderDataTable({
+  output$Estimates <- renderUI({
     if (!values$DoneAssess) return("")
     if (!"table" %in% input$pTypes) return("")
-	GetEstimates()
+    DT::dataTableOutput("Estimates_Table")
+  })
+
+  output$Estimates_Table <- DT::renderDataTable({
+    GetEstimates()
   }, options=list(pageLength=-1, searching = FALSE, paging = FALSE,
-     ordering=FALSE, info=FALSE)
+                  ordering=FALSE, info=FALSE)
   # }, options=list(pageLength=-1, searching = FALSE, paging = FALSE,
-     # ordering=FALSE, info=FALSE, rowCallback = I(
-    # 'function(row, data) {
-        # $("td", row).css("text-align", "center");
-      # }'))
-	)
+  # ordering=FALSE, info=FALSE, rowCallback = I(
+  # 'function(row, data) {
+  # $("td", row).css("text-align", "center");
+  # }'))
+  )
+
 
   output$downloadEsts <- renderUI({
     if (!values$DoneAssess) return("")

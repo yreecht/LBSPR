@@ -4,9 +4,15 @@
 \alias{plotSize}
 \title{Plot the size data and model fits}
 \usage{
-plotSize(LB_obj = NULL, size.axtex = 12, size.title = 14,
-  Title = NULL, scales = c("fixed", "free_x", "free_y", "free"),
-  inc.text = TRUE)
+plotSize(
+  LB_obj = NULL,
+  size.axtex = 12,
+  size.title = 14,
+  Title = NULL,
+  scales = c("fixed", "free_x", "free_y", "free"),
+  inc.text = FALSE,
+  warn.size = 0.8
+)
 }
 \arguments{
 \item{LB_obj}{an object of class \code{'LB_obj'} that contains the life history and fishing information}
@@ -22,6 +28,8 @@ plotSize(LB_obj = NULL, size.axtex = 12, size.title = 14,
 or both rows and columns ("free")}
 
 \item{inc.text}{Include text on plotting warning of high F or selectivity estimates?}
+
+\item{warn.size}{numeric. Size of font for the warnings}
 }
 \value{
 a ggplot object
