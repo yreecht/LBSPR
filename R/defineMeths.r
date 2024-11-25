@@ -210,7 +210,7 @@ setClass("LB_lengths", representation(
 setMethod("initialize", "LB_lengths", function(.Object, file="none", LB_pars=NULL,
   dataType=c("raw", "freq"), header=FALSE, verbose=TRUE, ...) {
 
-  if (class(file)== "character") {
+  if (inherits(file,  "character")) {
     if(!file.exists(file)) {
       if (verbose) message("File not found. A blank LB_lengths object created")
 	  .Object@Elog <- 0
@@ -315,9 +315,10 @@ setMethod("initialize", "LB_lengths", function(.Object, file="none", LB_pars=NUL
       message(file, " loaded")
     }
   }
-  if(inherits(file,"matrix") | inherits(file,"numeric") | inherits(file,"integer")) {
+
+  if(inherits(file, "matrix") || inherits(file, "numeric") || inherits(file, "integer")) {
     dat <- file
-	dat <- as.data.frame(dat)
+	  dat <- as.data.frame(dat)
     dataType <- match.arg(dataType)
     if (dataType == "freq") {
       .Object@LMids <- LMids <- dat[,1]
